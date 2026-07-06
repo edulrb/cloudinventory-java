@@ -7,8 +7,8 @@ Este repositório contém a documentação técnica, decisões arquiteturais e e
 ---
 
 ## Tecnologias e Ecossistema
-* **Linguagem Principal:** Java 8 (OpenJDK 8 - Temurin)
-* **Framework Core:** Spring Boot 4 / Spring Data JPA
+* **Linguagem Principal:** Java 2
+* **Framework Core:** Spring Boot 4
 * **Segurança:** Spring Security (Customizado)
 * **Banco de Dados:** MySQL (Integração com Sistema Legado TFS 0.3.6)
 * **Comunicação e Protocolos:** HTTP/1.1 (HttpClient nativo), WebSockets (STOMP) e Webhooks
