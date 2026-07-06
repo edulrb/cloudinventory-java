@@ -22,13 +22,17 @@ O banco de dados legado do jogo armazena as credenciais dos usuários utilizando
 * **Solução:** O sistema intercepta as requisições via OncePerRequestFilter, valida os tokens JWT e autentica o jogador processando o hash SHA-1 de forma nativa e segura dentro do fluxo do Spring.
 
 ### 2. Controle Transacional Estrito e Consistência de Itens Virtuais
-O Marketplace lida com a compra, venda e aluguel de itens virtuais utilizando tanto moedas digitais (pontos ou moedas do jogo) quanto dinheiro real. O maior desafio foi garantir a consistência das transações para evitar problemas de concorrência ou duplicação de itens (duping).
-* **Solução:** Utilização de controle transacional isolado (@Transactional) no Spring Data JPA. O sistema valida a quantidade disponível no inventário do vendedor, realiza transações parciais e gerencia o agrupamento (stacking) de itens semelhantes no banco de dados. Se uma compra falhar ou os fundos forem insuficientes, a transação sofre rollback automático, mantendo o inventário dos jogadores intacto.
+O Marketplace lida com a compra, venda e aluguel de itens virtuais utilizando tanto moedas digitais (pontos ou moedas do jogo) quanto dinheiro real[cite: 3, 8]. O maior desafio foi garantir a consistência das transações para evitar problemas de concorrência ou duplicação de itens (duping).
+* **Solução:** Utilização de controle transacional isolado (@Transactional) no Spring Data JPA[cite: 3, 8]. O sistema valida a quantidade disponível no inventário do vendedor, realiza transações parciais e gerencia o agrupamento (stacking) de itens semelhantes no banco de dados[cite: 8]. Se uma compra falhar ou os fundos forem insuficientes, a transação sofre rollback automático, mantendo o inventário dos jogadores intacto[cite: 8].
+
+![Demonstração do fluxo de publicação e transferência segura de ativos](img/first_gif.gif)
 
 ### 3. Integração Resiliente de Pagamentos (Mercado Pago API)
-Implementei a integração completa com o gateway do Mercado Pago para permitir a compra de itens virtuais por transações financeiras reais via Pix de forma assíncrona.
-* **Solução com Idempotência:** As requisições de cobrança são disparadas usando o java.net.http.HttpClient nativo do Java, injetando uma chave de idempotência (X-Idempotency-Key com UUID) no cabeçalho HTTP para impedir cobranças duplicadas em caso de instabilidade na rede.
-* **Fluxo Assíncrono com Webhooks:** A API disponibiliza endpoints públicos (/webhook/mercadopago) liberados no Spring Security para receber notificações assíncronas do gateway. O status do pagamento é verificado via GET na API do Mercado Pago antes de qualquer alteração interna.
+Implementei a integração completa com o gateway do Mercado Pago para permitir a compra de itens virtuais por transações financeiras reais via Pix de forma assíncrona[cite: 1, 3].
+* **Solução com Idempotência:** As requisições de cobrança são disparadas usando o java.net.http.HttpClient nativo do Java[cite: 1], injetando uma chave de idempotência (X-Idempotency-Key com UUID) no cabeçalho HTTP para impedir cobranças duplicadas em caso de instabilidade na rede[cite: 1].
+* **Persistência de Cobranças Pendentes:** Caso o usuário feche a tela de checkout ou atualize a página antes de pagar, o estado da transação é retido no banco de dados. Um indicador visual de notificação é exibido na interface para alertar o jogador sobre transações Pix pendentes, permitindo que ele acesse o histórico e recupere o QR Code ativo para concluir o pagamento.
+
+![Geração de Pix e persistência de cobranças pendentes na interface](img/second_gif.gif)
 
 ### 4. Entrega Automática e Eventos em Tempo Real via WebSockets
 Por se tratar de ativos digitais, a entrega do item comprado deve ser imediata após a aprovação do pagamento, sem depender de atualizações manuais de página (HTTP Pooling).
