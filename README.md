@@ -7,7 +7,7 @@ Este repositório contém a documentação técnica, decisões arquiteturais e e
 ---
 
 ## Tecnologias e Ecossistema
-* **Linguagem Principal:** Java 2
+* **Linguagem Principal:** Java 25
 * **Framework Core:** Spring Boot 4
 * **Segurança:** Spring Security (Customizado)
 * **Banco de Dados:** MySQL (Integração com Sistema Legado TFS 0.3.6)
